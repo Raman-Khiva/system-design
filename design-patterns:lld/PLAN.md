@@ -20,8 +20,8 @@
 
 | # | Pattern | Assignment Scenario | Simple Definition | Why / Pain it Cures | Status |
 |---|---------|---------------------|-------------------|---------------------|--------|
-| 1 | **Strategy** | `Order.checkout()` supports Credit Card, PayPal, Crypto | Encapsulate each payment algorithm in its own class and swap them at runtime | `if/else` or `switch` on payment type inside `Order`; adding a 4th method forces editing `Order` | 🔄 In Progress |
-| 2 | **Factory** | Create the right payment strategy object without exposing `new` calls | Centralize object creation in one class/method so clients don’t instantiate concrete classes directly | `new CreditCardPayment()`, `new PayPalPayment()` scattered across the codebase; hard to add/rename types | ⬜ Pending |
+| 1 | **Strategy** | `Order.checkout()` supports Credit Card, PayPal, Crypto | Encapsulate each payment algorithm in its own class and swap them at runtime | `if/else` or `switch` on payment type inside `Order`; adding a 4th method forces editing `Order` | ✅ Done |
+| 2 | **Factory** | Create the right payment strategy object without exposing `new` calls | Centralize object creation in one class/method so clients don’t instantiate concrete classes directly | `new CreditCardPayment()`, `new PayPalPayment()` scattered across the codebase; hard to add/rename types | ⬜ Next |
 | 3 | **Singleton** | Shared payment gateway config / order processor | Ensure only one instance of a class exists and provide global access | Multiple instances of config/connection causing inconsistent state or wasted resources | ⬜ Pending |
 | 4 | **Observer** | Notify email, inventory, shipping when an order is placed | Let objects subscribe to events and get notified automatically without the publisher knowing who they are | `Order` directly calling 5 different services; tight coupling, hard to add a new notification target | ⬜ Pending |
 | 5 | **Decorator** | Add gift wrap, insurance, express shipping to an order | Dynamically attach responsibilities to an object by wrapping it | Subclass explosion: `OrderWithGiftWrap`, `OrderWithInsurance`, `OrderWithBoth`, etc. | ⬜ Pending |
@@ -33,41 +33,12 @@
 
 ---
 
-## Quick Revision (one-liners)
-
-| Pattern | Remember it as... |
-|---------|-------------------|
-| Strategy | "Swap algorithms like plugins." |
-| Factory | "Don’t call `new` everywhere; let a factory decide." |
-| Singleton | "One instance to rule them all." |
-| Observer | "Subscribe and get notified." |
-| Decorator | "Wrap it, don’t subclass it." |
-| Template Method | "Fixed skeleton, customizable steps." |
-| Command | "Turn actions into objects." |
-| State | "Behavior changes with mood (state)." |
-| Facade | "One simple door to a messy room." |
-| Builder | "Build step by step, not one giant constructor." |
-
----
-
-## Progress Log
-
-| Date | Pattern | Assignment | Notes |
-|------|---------|------------|-------|
-| | Strategy | Payment methods in `Order` | Current |
-| | | | |
-| | | | |
-| | | | |
-
-*(Fill this in as we complete each assignment.)*
-
----
-
 ## Next Immediate Step
 
-Complete **Assignment #1 (Strategy)**:
+**Assignment #2 — Factory Pattern:**
 
-- Create `Order.java` with `checkout(String paymentType, double amount)`.
-- Use naive `if/else` or `switch` inside `checkout`.
-- Support `credit_card`, `paypal`, `crypto`.
-- Paste your code here for review.
+Pain: Even with Strategy, `Main` (or other clients) still does `new CreditCardPayment()`, `new PayPalPayment()` directly. If payment class names change or construction logic gets complex, every client breaks.
+
+Task: Create a `PaymentFactory` that returns the right `PaymentStrategy` based on a type string, so clients don't call `new` directly.
+
+Tell me when you're ready, and I'll give the full scenario.
