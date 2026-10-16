@@ -84,6 +84,71 @@ Detailed chronological progress with code: `factory:creational/PROGRESS.md`
 
 ---
 
-## Pending: Singleton, Observer, Decorator, Template Method, Command, State, Facade, Builder
+## Completed: Singleton (Assignment #3)
+
+### Location
+Detailed chronological progress with code: `singleton:creational/PROGRESS.md`
+
+### What you built
+- **Naive:** `singleton:creational/naive/PaymentGatewayConfig.java` + `Main.java` — public constructor, two instances with inconsistent `isSandboxMode` state
+- **Pattern:** `singleton:creational/pattern/` — private constructor, private static `instance`, static `getInstance()` with lazy initialization; `Main` proves `config1` and `config2` are the same object
+
+### Pain identified
+1. **Uncontrolled instantiation:** Anyone can call `new PaymentGatewayConfig()` and create independent copies.
+2. **Inconsistent state:** `config1` has `isSandboxMode = true`, `config2` has `false`. Different objects, diverging state.
+3. **No single source of truth:** Changing one instance doesn't affect others; easy to miss updates.
+4. **Memory waste:** Duplicate config objects waste resources.
+
+### Pattern born from pain
+**Singleton (Creational):** Ensure a class has only one instance and provide a global point of access to it.
+
+### Key result
+- `getInstance()` always returns the same object
+- State changes are visible across the whole app
+- `config1 == config2` → `true`
+
+**Status:** ✅ Complete. Review `singleton:creational/PROGRESS.md` for full revision notes.
+
+---
+
+## In Progress: Observer (Assignment #4)
+
+### Current pain
+After `Order.checkout()` completes, you need to notify email, inventory, shipping, and analytics services. If `Order` calls them directly:
+
+```java
+public void checkout(double amount) {
+    paymentStrategy.pay(amount);
+    emailService.send(...);
+    inventoryService.update(...);
+    shippingService.schedule(...);
+    analyticsService.track(...);
+}
+```
+
+**Problems:**
+- `Order` knows about every service (tight coupling)
+- Adding a new notification (e.g., SMS) requires editing `Order.java`
+- Testing `Order` requires mocking all 5 services
+- You can't easily enable/disable notifications per environment
+
+### Your task
+Implement Observer so `Order` doesn't know who its observers are. Services subscribe to order events and get notified automatically.
+
+**Requirements:**
+1. Create an `Observer` interface with an `update(Order order)` method
+2. Create concrete observers: `EmailService`, `InventoryService`, `ShippingService`, `AnalyticsService`
+3. Refactor `Order` to:
+   - Maintain a list of observers (`List<Observer>`)
+   - Provide `attach(Observer)` and `detach(Observer)` methods
+   - Call `notifyObservers()` after checkout completes
+4. `Main` should attach observers to the order, then call `checkout()`
+
+**Question to keep in mind:**
+> If you add a 6th service (e.g., SMS notification), do you still have to touch `Order.java`? Or just create a new observer class and attach it?
+
+---
+
+## Pending: Decorator, Template Method, Command, State, Facade, Builder
 
 *(Will fill in as we complete each assignment.)*

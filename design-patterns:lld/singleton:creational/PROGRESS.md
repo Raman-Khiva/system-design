@@ -3,7 +3,7 @@
 **Directory:** `singleton:creational/`  
 **Language:** Java  
 **Pattern Type:** Creational  
-**Status:** 🔄 Part 1 Complete (Naive), Part 2 Pending (Singleton Refactor)
+**Status:** ✅ Complete (Naive + Singleton Refactor)
 
 ---
 
@@ -128,14 +128,33 @@ Common real-world examples:
 
 ---
 
-## 5. The Cure: What Singleton Does (Conceptual — Not Yet Implemented by You)
+## 5. The Cure: What Singleton Does (Implemented by You)
 
 Singleton restricts instantiation to exactly one object through:
 
-1. **Private constructor** — prevents `new PaymentGatewayConfig()` from outside the class
-2. **Private static field** — holds the single instance inside the class itself
+1. **Private constructor** — `private PaymentGatewayConfig()` prevents `new PaymentGatewayConfig()` from outside the class
+2. **Private static field** — `private static PaymentGatewayConfig instance;` holds the single object inside the class
 3. **Public static `getInstance()` method** — returns the single instance, creates it lazily on first call if null
 4. **Global access** — every part of the app calls `PaymentGatewayConfig.getInstance()` and gets the same object
+
+Your implementation:
+```java
+private PaymentGatewayConfig() {
+    apiEndpoints = "/some/api/endpoint";
+    defaultCurrency = "USD";
+    timeoutSeconds = 120;
+    isSandboxMode = false;
+}
+
+private static PaymentGatewayConfig instance;
+
+public static PaymentGatewayConfig getInstance(){
+    if(instance==null){
+        instance = new PaymentGatewayConfig();
+    }
+    return instance;
+}
+```
 
 Result:
 ```java
@@ -144,25 +163,25 @@ PaymentGatewayConfig config2 = PaymentGatewayConfig.getInstance();
 // config1 == config2  →  true (same object reference)
 ```
 
-Change state on `config1`, and `config2` sees it — because they are identical.
+Change state on `config1`, and `config2` sees it — because they are identical. Your `Main` correctly demonstrated this by setting `isSandboxMode = true` on `config1` and observing both configs reflect `true`.
 
 ---
 
-## 6. Your Next Task (Part 2 — Pending)
+## 6. Your Implementation (Part 2 — Completed)
 
 **Folder:** `singleton:creational/pattern/`
 
-### Create `PaymentGatewayConfig.java` as a Singleton:
-1. **Private constructor** — `private PaymentGatewayConfig() { ... }`
-2. **Private static instance field** — `private static PaymentGatewayConfig instance;`
-3. **Public static `getInstance()` method** — returns the single instance, creates it on first call if null
-4. Keep all existing fields and getters/setters
+### `pattern/PaymentGatewayConfig.java`
+- ✅ Private constructor
+- ✅ Private static `instance` field
+- ✅ Public static `getInstance()` with lazy initialization
+- ✅ All fields and getters/setters preserved
 
-### Update `Main.java`:
-1. Get the instance twice via `PaymentGatewayConfig.getInstance()`
-2. Set `isSandboxMode = true` on the first reference
-3. Print both references — both should show `true`
-4. Print `config1 == config2` — should output `true`
+### `pattern/Main.java`
+- ✅ Gets instance twice via `getInstance()`
+- ✅ Changes state on `config1`
+- ✅ Prints both configs before and after change — both reflect `true`
+- ✅ Proves shared state across the app
 
 ---
 
@@ -171,8 +190,32 @@ Change state on `config1`, and `config2` sees it — because they are identical.
 1. ✅ Created naive `PaymentGatewayConfig` with public constructor
 2. ✅ Created naive `Main` showing two instances with different `isSandboxMode` states
 3. ✅ Pain identified: uncontrolled instantiation, inconsistent state, no single source of truth
-4. ⏳ Part 2: Refactor into Singleton (private constructor, static `getInstance()`, shared instance)
-5. ⏳ Verify `config1 == config2` is `true` and state is consistent
+4. ✅ Refactored into Singleton (private constructor, static `getInstance()`, shared instance)
+5. ✅ Verified state consistency — both references see the same changes
+
+---
+
+## 8. Key Takeaways (For Revision)
+
+- **Singleton guarantees exactly one instance** of a class per JVM (per classloader).
+- **Private constructor** is the gatekeeper — without it, anyone can bypass the singleton.
+- **Static `getInstance()`** is the global access point.
+- **Lazy initialization** — object is created only when first requested.
+- **Use case:** When exactly one object is needed to coordinate actions or hold shared state (config, loggers, connection pools).
+
+---
+
+## 9. Questions to Consider
+
+- Why must the constructor be `private`? What happens if it stays `public`?
+- What does `config1 == config2` compare — object identity or object equality?
+- Is this implementation thread-safe? (Not yet — two threads could both see `instance == null` and create two objects. We'll address this if needed later.)
+
+---
+
+## 10. Next Pattern
+
+**Observer** — born from this pain: After checkout completes, you need to notify email, inventory, shipping, and analytics services. Having `Order` call all of them directly creates tight coupling and makes adding/removing notification targets painful.
 
 ---
 
