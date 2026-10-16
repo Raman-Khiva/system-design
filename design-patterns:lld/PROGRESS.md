@@ -58,6 +58,32 @@ Create a `PaymentFactory` so clients never call `new` on payment classes directl
 
 ---
 
-## Next (Pending): Singleton, Observer, Decorator, Template Method, Command, State, Facade, Builder
+## Completed: Factory Method (Assignment #2)
+
+### Location
+Detailed chronological progress with code: `factory:creational/PROGRESS.md`
+
+### What you built
+- **Naive:** `factory:creational/naive/Main.java` — `switch` calling `new CreditCardPayment()` directly
+- **Pattern:** `factory:creational/pattern/` — `PaymentFactory` interface + 3 concrete factories; `Main` calls `factory.createPayment()`, no direct `new` on payment classes
+
+### Pain identified
+1. **Client coupled to concrete classes:** `Main` directly instantiates payment classes.
+2. **Fragile on change:** Adding Apple Pay requires editing every client's `new` calls.
+3. **Constructor changes break clients:** Every `new` call site must be updated.
+
+### Pattern born from pain
+**Factory Method (Creational):** Define an interface for creating an object, but let factories decide which class to instantiate. Clients depend on the factory interface, not concrete classes.
+
+### Key result
+- `new CreditCardPayment()` etc. moved from `Main` into factory classes
+- `Main` depends on `PaymentFactory` abstraction, not concrete payment classes
+- Adding a new payment type requires only a new factory class
+
+**Status:** ✅ Complete. Review `factory:creational/PROGRESS.md` for full revision notes.
+
+---
+
+## Pending: Singleton, Observer, Decorator, Template Method, Command, State, Facade, Builder
 
 *(Will fill in as we complete each assignment.)*
