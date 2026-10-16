@@ -5,27 +5,29 @@
 
 ---
 
-## In Progress: Strategy Pattern (Assignment #1 — Refactor)
+## Completed: Strategy Pattern (Assignment #1)
 
-### What you built (naive)
-`strategy:behavioral/Order.java` — an `Order` class with a `switch` on `paymentType` (`credit_card`, `paypal`, `crypto`) inside `checkout()`.
+### Location
+Detailed chronological progress with code: `strategy:behavioral/PROGRESS.md`
+
+### What you built (naive → refactored)
+- **Naive:** `strategy:behavioral/naive/Order.java` — `switch` on payment type inside `checkout()`
+- **Refactored:** `strategy:behavioral/pattern/` — `PaymentStrategy` interface + 3 concrete strategies; `Order` delegates, no `switch`
 
 ### Pain identified
-1. **Open/Closed Principle violation:** Adding a 4th payment method forces editing `Order.java`.
+1. **Open/Closed violation:** Adding a 4th payment method forces editing `Order.java`.
 2. **Single Responsibility violation:** `Order` knows internals of every payment method.
-3. **Fragile:** One giant `switch` holds all payment logic.
+3. **Fragile:** One `switch` holds all payment logic.
 
-### Pattern born from the pain
+### Pattern born from pain
 **Strategy (Behavioral):** Extract each payment algorithm into its own class behind a common interface. `Order` delegates to a `PaymentStrategy` instead of deciding which payment to run.
 
-### Your current task
-Refactor the naive code into Strategy:
-- `PaymentStrategy` interface → `pay(double amount)`
-- `CreditCardPayment`, `PayPalPayment`, `CryptoPayment` implement it
-- `Order` holds a `PaymentStrategy` reference, no `switch`
-- Client injects the strategy into `Order`
+### Key result
+- `Order` knows nothing about `credit_card`, `paypal`, or `crypto`
+- Adding Apple Pay requires only a new class; `Order` stays untouched
+- Client (`Main`) chooses and injects the strategy
 
-**Not marked complete until you paste the refactored code and I review it.**
+**Status:** ✅ Complete. Review `strategy:behavioral/PROGRESS.md` for full revision notes.
 
 ---
 
