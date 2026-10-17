@@ -140,36 +140,57 @@ Detailed chronological progress with code: `observer:behavioral/PROGRESS.md`
 
 ---
 
-## In Progress: Decorator (Assignment #5)
+## Skipped: Decorator (Assignment #5)
 
-### Current pain
-You need to add optional features to an order: gift wrap, insurance, express shipping. If you subclass:
-
-```java
-class OrderWithGiftWrap extends Order { ... }
-class OrderWithInsurance extends Order { ... }
-class OrderWithGiftWrapAndInsurance extends OrderWithGiftWrap { ... }
-```
-
-**Problems:**
-- Subclass explosion: every combination needs a new class
-- Can't add/remove features at runtime
-- Features are baked into the class hierarchy, not composable
-
-### Your task
-Implement Decorator so you can wrap an order with features dynamically:
-
-1. Create `Order` interface with `getDescription()` and `getCost()`
-2. Create `BasicOrder` implementing `Order`
-3. Create `OrderDecorator` abstract class implementing `Order` that wraps an `Order`
-4. Create concrete decorators: `GiftWrapDecorator`, `InsuranceDecorator`, `ExpressShippingDecorator`
-5. `Main` should wrap a `BasicOrder` with multiple decorators and show the final description and cost
-
-**Question to keep in mind:**
-> Can you add gift wrap and insurance to the same order without creating a `GiftWrapAndInsuranceOrder` class?
+**Status:** ⏭️ Skipped by mutual agreement — not a prerequisite for Template Method.
 
 ---
 
-## Pending: Template Method, Command, State, Facade, Builder
+## In Progress: Template Method (Assignment #6)
+
+### Location
+Naive code: `template:behavioral/naive/`
+
+### What you built (naive)
+- **`Order.java`** — interface with only `process()`
+- **`StandardOrder.java`** — implements `process()` with 4 hardcoded steps (validate → tax → notify → inventory)
+- **`ExpressOrder.java`** — implements `process()` with same 4-step sequence, different step implementations
+- **`Main.java`** — selects order type, calls `process()`
+
+### Pain identified (Tutor Review)
+
+| # | Pain | Explanation |
+|---|------|-------------|
+| 1 | **Duplicated algorithm skeleton** | Both `StandardOrder` and `ExpressOrder` contain the identical 4-step sequence. Adding a 5th step requires editing every order class. |
+| 2 | **Hard to reorder steps** | If business changes step order (e.g., notify before tax), every order class must be edited. |
+| 3 | **No way to override just one step** | Each class implements the entire `process()` from scratch. If only tax differs, you still rewrite validation, notification, inventory. |
+| 4. | **Interface is too thin** | `Order` exposes only `process()`, no contract declaring the individual steps that all orders must follow. |
+
+**The core problem:** Multiple classes share the same algorithm structure but individual steps vary. The skeleton is copied, not centralized.
+
+### Pattern born from pain
+**Template Method (Behavioral):** Define the skeleton of an algorithm in a base class method, deferring some steps to subclasses. Subclasses redefine certain steps without changing the algorithm's structure.
+
+### Your Next Task (Part 2 — Pending)
+
+**Folder:** `template:behavioral/pattern/`
+
+### Create:
+
+1. **`Order.java`** — abstract class with:
+   - `final void process()` containing the step skeleton
+   - Abstract methods for steps that vary
+   - Optional hook methods with default implementations
+
+2. **`StandardOrder.java`** — extends `Order`, overrides only steps that differ
+3. **`ExpressOrder.java`** — extends `Order`, overrides only steps that differ
+4. **`Main.java`** — same driver, order types share the skeleton
+
+### Key question:
+> If you add a 5th step (e.g., `sendInvoice()`), do you edit one class (the abstract base) or every order subclass?
+
+---
+
+## Pending: Command, State, Facade, Builder
 
 *(Will fill in as we complete each assignment.)*
