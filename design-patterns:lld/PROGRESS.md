@@ -191,37 +191,70 @@ Naive code: `template:behavioral/naive/`
 
 ---
 
-## In Progress: Command (Assignment #7)
+## Completed: Command (Assignment #7)
+
+### Location
+Detailed chronological progress with code: `command:behavioral/PROGRESS.md`
+
+### What you built
+- **Naive:** `command:behavioral/naive/OrderProcessor.java` — `placeOrder()` and `cancelOrder()` with business logic inline; `Main.java` calls methods directly
+- **Pattern:** `command:behavioral/pattern/` — `Command` interface (`execute()`/`undo()`), `Order` receiver, `PlaceOrderCommand`, `CancelOrderCommand`, `CommandInvoker` (history stack), `Main` demonstrates execute + undo
+
+### Pain identified
+1. **Business logic tangled with invocation:** Caller knows internal steps of `placeOrder()`.
+2. **No undo capability:** Once executed, no true reversal.
+3. **No retry or queue support:** Can't queue commands or retry failed steps.
+4. **Fragile on change:** New action requires editing both `OrderProcessor` and `Main`.
+5. **No logging or audit trail:** Actions execute immediately, not captured as objects.
+
+### Pattern born from pain
+**Command (Behavioral):** Encapsulate a request as an object, letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+
+### Key result
+- `CommandInvoker` holds a history stack and calls `execute()`/`undo()` without knowing command internals
+- `Order` object created once outside loop — undo operates on the same order
+- Undo demonstrated via menu option (`u`)
+
+**Status:** ✅ Complete. Review `command:behavioral/PROGRESS.md` for full revision notes.
+
+---
+
+## In Progress: State (Assignment #8)
 
 ### Current pain
-You need to place, cancel, and retry orders with undo support. Business logic is tangled with invocation/request handling:
+An `Order` goes through a lifecycle (`Pending → Paid → Shipped → Delivered → Cancelled`). Each method contains `if/else` or `switch` on the current `status` to decide if the action is valid:
 
 ```java
-public void placeOrder(Order order) {
-    // validate, calculate tax, process payment, notify, inventory
-    // all mixed with UI/controller logic
+public void pay() {
+    if (status == Status.PENDING) {
+        // process payment
+        status = Status.PAID;
+    } else {
+        System.out.println("Cannot pay in " + status + " state.");
+    }
 }
 ```
 
 **Problems:**
-- Business logic tangled with invocation/request handling
-- No way to undo an order placement
-- No way to retry or queue orders
-- Can't log or serialize requests for audit/retry
+- `if/else` on status inside every method — logic scattered
+- Adding a new status requires editing every method
+- Adding a new action requires writing status checks for all statuses
+- `Order` knows about every status and transition — does too much
+- Invalid transitions just print messages, no clean error handling
 
 ### Your task
-Implement Command so you can turn order actions into objects:
+Implement State so behavior changes based on internal state without `if/else`:
 
-1. Create `Command` interface with `execute()` and optionally `undo()`
-2. Create concrete commands: `PlaceOrderCommand`, `CancelOrderCommand`
-3. Create an `Invoker` (e.g., `OrderProcessor`) that holds and executes commands
-4. `Main` should create commands, pass to invoker, execute, and optionally undo
+1. Create `State` interface with all action methods (`place()`, `pay()`, `ship()`, `deliver()`, `cancel()`)
+2. Create concrete states: `PendingState`, `PaidState`, `ShippedState`, `DeliveredState`, `CanceledState`
+3. Refactor `Order` to hold a `State` reference and delegate all actions to it
+4. `Main` should demonstrate valid and invalid transitions
 
 **Question to keep in mind:**
-> Can you undo an order placement without the invoker knowing the details of how the order was placed?
+> If you add a new status (e.g., `REFUNDED`), do you create one new class, or edit every existing state method?
 
 ---
 
-## Pending: State, Facade, Builder
+## Pending: Facade, Builder
 
 *(Will fill in as we complete each assignment.)*
