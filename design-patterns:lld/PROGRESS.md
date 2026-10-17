@@ -146,7 +146,7 @@ Detailed chronological progress with code: `observer:behavioral/PROGRESS.md`
 
 ---
 
-## In Progress: Template Method (Assignment #6)
+## Completed: Template Method (Assignment #6)
 
 ### Location
 Naive code: `template:behavioral/naive/`
@@ -191,6 +191,37 @@ Naive code: `template:behavioral/naive/`
 
 ---
 
-## Pending: Command, State, Facade, Builder
+## In Progress: Command (Assignment #7)
+
+### Current pain
+You need to place, cancel, and retry orders with undo support. Business logic is tangled with invocation/request handling:
+
+```java
+public void placeOrder(Order order) {
+    // validate, calculate tax, process payment, notify, inventory
+    // all mixed with UI/controller logic
+}
+```
+
+**Problems:**
+- Business logic tangled with invocation/request handling
+- No way to undo an order placement
+- No way to retry or queue orders
+- Can't log or serialize requests for audit/retry
+
+### Your task
+Implement Command so you can turn order actions into objects:
+
+1. Create `Command` interface with `execute()` and optionally `undo()`
+2. Create concrete commands: `PlaceOrderCommand`, `CancelOrderCommand`
+3. Create an `Invoker` (e.g., `OrderProcessor`) that holds and executes commands
+4. `Main` should create commands, pass to invoker, execute, and optionally undo
+
+**Question to keep in mind:**
+> Can you undo an order placement without the invoker knowing the details of how the order was placed?
+
+---
+
+## Pending: State, Facade, Builder
 
 *(Will fill in as we complete each assignment.)*
