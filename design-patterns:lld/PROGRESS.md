@@ -111,44 +111,65 @@ Detailed chronological progress with code: `singleton:creational/PROGRESS.md`
 
 ---
 
-## In Progress: Observer (Assignment #4)
+## Completed: Observer (Assignment #4)
 
-### Current pain
-After `Order.checkout()` completes, you need to notify email, inventory, shipping, and analytics services. If `Order` calls them directly:
+### Location
+Detailed chronological progress with code: `observer:behavioral/PROGRESS.md`
 
-```java
-public void checkout(double amount) {
-    paymentStrategy.pay(amount);
-    emailService.send(...);
-    inventoryService.update(...);
-    shippingService.schedule(...);
-    analyticsService.track(...);
-}
-```
+### What you built
+- **Naive:** `observer:behavioral/naive/Order.java` — directly instantiates `EmailService`, `InventoryService`, `ShippingService` and calls `send()`, `update()`, `schedule()` directly
+- **Pattern:** `observer:behavioral/pattern/` — `Observer` interface + 3 concrete observers; `Order` holds `List<Observer>` with `attach()`/`detach()`/`notifyObservers()`
 
-**Problems:**
-- `Order` knows about every service (tight coupling)
-- Adding a new notification (e.g., SMS) requires editing `Order.java`
-- Testing `Order` requires mocking all 5 services
-- You can't easily enable/disable notifications per environment
+### Pain identified
+1. **Tight coupling to concrete classes:** `Order` knows service classes by name and method signatures.
+2. **Order creates its own dependencies:** Constructor uses `new`, preventing mock injection.
+3. **Fragile on change:** Adding SMS requires editing `Order.java` (field + init + method call).
+4. **No selective notification:** All services fire unconditionally.
+5. **Inconsistent method names:** `send()`, `update()`, `schedule()` — `Order` must remember each.
 
-### Your task
-Implement Observer so `Order` doesn't know who its observers are. Services subscribe to order events and get notified automatically.
+### Pattern born from pain
+**Observer (Behavioral):** Define a one-to-many dependency so that when one object changes state, all dependents are notified automatically. Subject knows only the interface, not concrete observers.
 
-**Requirements:**
-1. Create an `Observer` interface with an `update(Order order)` method
-2. Create concrete observers: `EmailService`, `InventoryService`, `ShippingService`, `AnalyticsService`
-3. Refactor `Order` to:
-   - Maintain a list of observers (`List<Observer>`)
-   - Provide `attach(Observer)` and `detach(Observer)` methods
-   - Call `notifyObservers()` after checkout completes
-4. `Main` should attach observers to the order, then call `checkout()`
+### Key result
+- `Order` maintains `List<Observer>` — knows nothing about Email/Inventory/Shipping
+- `attach()` / `detach()` for runtime subscription
+- `notifyObservers()` loops and calls `update()`
+- Adding SMSService requires zero changes to `Order.java`
 
-**Question to keep in mind:**
-> If you add a 6th service (e.g., SMS notification), do you still have to touch `Order.java`? Or just create a new observer class and attach it?
+**Status:** ✅ Complete. Review `observer:behavioral/PROGRESS.md` for full revision notes.
 
 ---
 
-## Pending: Decorator, Template Method, Command, State, Facade, Builder
+## In Progress: Decorator (Assignment #5)
+
+### Current pain
+You need to add optional features to an order: gift wrap, insurance, express shipping. If you subclass:
+
+```java
+class OrderWithGiftWrap extends Order { ... }
+class OrderWithInsurance extends Order { ... }
+class OrderWithGiftWrapAndInsurance extends OrderWithGiftWrap { ... }
+```
+
+**Problems:**
+- Subclass explosion: every combination needs a new class
+- Can't add/remove features at runtime
+- Features are baked into the class hierarchy, not composable
+
+### Your task
+Implement Decorator so you can wrap an order with features dynamically:
+
+1. Create `Order` interface with `getDescription()` and `getCost()`
+2. Create `BasicOrder` implementing `Order`
+3. Create `OrderDecorator` abstract class implementing `Order` that wraps an `Order`
+4. Create concrete decorators: `GiftWrapDecorator`, `InsuranceDecorator`, `ExpressShippingDecorator`
+5. `Main` should wrap a `BasicOrder` with multiple decorators and show the final description and cost
+
+**Question to keep in mind:**
+> Can you add gift wrap and insurance to the same order without creating a `GiftWrapAndInsuranceOrder` class?
+
+---
+
+## Pending: Template Method, Command, State, Facade, Builder
 
 *(Will fill in as we complete each assignment.)*
