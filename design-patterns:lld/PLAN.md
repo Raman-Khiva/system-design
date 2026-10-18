@@ -27,8 +27,8 @@
 | 5 | **Decorator** | Add gift wrap, insurance, express shipping to an order | Dynamically attach responsibilities to an object by wrapping it | Subclass explosion: `OrderWithGiftWrap`, `OrderWithInsurance`, `OrderWithBoth`, etc. | 🔄 In Progress |
 | 6 | **Template Method** | Checkout flow: validate → tax → payment → confirmation | Define the skeleton of an algorithm in a base class, let subclasses override specific steps | Duplicated checkout skeleton across different order types; steps hard to reuse | ✅ Done |
 | 7 | **Command** | Place, cancel, retry orders with undo support | Turn a request into an object so you can parameterize, queue, log, or undo operations | Business logic tangled with invocation/request handling; no way to undo or retry cleanly | ✅ Done |
-| 8 | **State** | Order lifecycle: `Pending → Paid → Shipped → Delivered → Cancelled` | Let an object change behavior when its internal state changes | Huge `if/else` on `order.status` inside every method; adding a new status breaks everything | 🔄 In Progress |
-| 9 | **Facade** | Simplify a complex checkout subsystem (payment + inventory + shipping + tax) | Provide a unified, simple interface to a complex set of classes/subsystems | Client code talking to 10 different services directly; changes in one service ripple to clients | ⬜ Pending |
+| 8 | **State** | Order lifecycle: `Pending → Paid → Shipped → Delivered → Cancelled` | Let an object change behavior when its internal state changes | Huge `if/else` on `order.status` inside every method; adding a new status breaks everything | ✅ Done |
+| 9 | **Facade** | Simplify a complex checkout subsystem (payment + inventory + shipping + tax) | Provide a unified, simple interface to a complex set of classes/subsystems | Client code talking to 10 different services directly; changes in one service ripple to clients | 🔄 In Progress |
 | 10 | **Builder** | Create complex orders with many optional fields | Construct a complex object step by step, separating construction from representation | Telescoping constructors / huge parameter lists; unclear what each argument means | ⬜ Pending |
 
 ---

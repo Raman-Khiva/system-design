@@ -219,42 +219,77 @@ Detailed chronological progress with code: `command:behavioral/PROGRESS.md`
 
 ---
 
-## In Progress: State (Assignment #8)
+## Completed: State (Assignment #8)
 
-### Current pain
-An `Order` goes through a lifecycle (`Pending → Paid → Shipped → Delivered → Cancelled`). Each method contains `if/else` or `switch` on the current `status` to decide if the action is valid:
+### Location
+Detailed chronological progress with code: `state:behavioral/PROGRESS.md`
 
-```java
-public void pay() {
-    if (status == Status.PENDING) {
-        // process payment
-        status = Status.PAID;
-    } else {
-        System.out.println("Cannot pay in " + status + " state.");
-    }
-}
-```
+### What you built
+- **Naive:** `state:behavioral/naive/Order.java` — `if/else` on `Status` enum inside every method
+- **Pattern:** `state:behavioral/pattern/` — `State` interface + 5 concrete states + `Order` context that delegates
 
-**Problems:**
-- `if/else` on status inside every method — logic scattered
-- Adding a new status requires editing every method
-- Adding a new action requires writing status checks for all statuses
-- `Order` knows about every status and transition — does too much
-- Invalid transitions just print messages, no clean error handling
+### Pain identified
+1. **`if/else` on status inside every method** — logic duplicated across all methods
+2. **Adding a new status requires editing every method**
+3. **Adding a new action requires writing status checks for all statuses**
+4. **`Order` knows about every status and transition** — does too much
+5. **Invalid transitions just print messages** — no clean error handling
 
-### Your task
-Implement State so behavior changes based on internal state without `if/else`:
+### Pattern born from pain
+**State (Behavioral):** Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.
 
-1. Create `State` interface with all action methods (`place()`, `pay()`, `ship()`, `deliver()`, `cancel()`)
-2. Create concrete states: `PendingState`, `PaidState`, `ShippedState`, `DeliveredState`, `CanceledState`
-3. Refactor `Order` to hold a `State` reference and delegate all actions to it
-4. `Main` should demonstrate valid and invalid transitions
+### Key result
+- No `if/else` on status anywhere in `Order` or state classes
+- Each state encapsulates its own behavior and transitions
+- Adding `REFUNDED` = one new class, no existing class changes
+- Terminal states (`DeliveredState`, `CanceledState`) correctly reject all actions
 
-**Question to keep in mind:**
-> If you add a new status (e.g., `REFUNDED`), do you create one new class, or edit every existing state method?
+**Status:** ✅ Complete. Review `state:behavioral/PROGRESS.md` for full revision notes.
 
 ---
 
-## Pending: Facade, Builder
+## In Progress: Facade (Assignment #9)
+
+### Current pain
+After checkout completes, multiple subsystems need to be coordinated:
+
+- PaymentService — process payment
+- InventoryService — deduct stock
+- ShippingService — schedule delivery
+- TaxService — calculate tax
+- EmailService — send confirmation
+- AnalyticsService — track sale
+
+If `Main` (or a controller) calls all these directly:
+
+```java
+paymentService.process(payment);
+inventoryService.deduct(items);
+shippingService.schedule(address);
+taxService.calculate(order);
+emailService.send(customer);
+analyticsService.track(order);
+```
+
+**Problems:**
+- Client knows about every subsystem (tight coupling)
+- Adding/removing a subsystem requires editing every client
+- Client must know the correct order of operations
+- Testing requires mocking all 6 services
+- Changes in one subsystem ripple to all clients
+
+### Your task
+Implement Facade so clients talk to one simple interface:
+
+1. Create subsystem classes (already have some from Observer: `EmailService`, `InventoryService`, `ShippingService`)
+2. Create `CheckoutFacade` with a simple method like `completeOrder(order, amount)` that coordinates all subsystems internally
+3. `Main` should call only `facade.completeOrder(...)`, not individual services
+
+**Question to keep in mind:**
+> Can you add a new subsystem (e.g., `NotificationService`) without changing `Main`?
+
+---
+
+## Pending: Builder
 
 *(Will fill in as we complete each assignment.)*
