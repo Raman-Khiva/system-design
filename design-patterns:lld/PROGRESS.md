@@ -248,48 +248,57 @@ Detailed chronological progress with code: `state:behavioral/PROGRESS.md`
 
 ---
 
-## In Progress: Facade (Assignment #9)
+## Skipped: Facade (Assignment #9)
 
-### Current pain
-After checkout completes, multiple subsystems need to be coordinated:
-
-- PaymentService — process payment
-- InventoryService — deduct stock
-- ShippingService — schedule delivery
-- TaxService — calculate tax
-- EmailService — send confirmation
-- AnalyticsService — track sale
-
-If `Main` (or a controller) calls all these directly:
-
-```java
-paymentService.process(payment);
-inventoryService.deduct(items);
-shippingService.schedule(address);
-taxService.calculate(order);
-emailService.send(customer);
-analyticsService.track(order);
-```
-
-**Problems:**
-- Client knows about every subsystem (tight coupling)
-- Adding/removing a subsystem requires editing every client
-- Client must know the correct order of operations
-- Testing requires mocking all 6 services
-- Changes in one subsystem ripple to all clients
-
-### Your task
-Implement Facade so clients talk to one simple interface:
-
-1. Create subsystem classes (already have some from Observer: `EmailService`, `InventoryService`, `ShippingService`)
-2. Create `CheckoutFacade` with a simple method like `completeOrder(order, amount)` that coordinates all subsystems internally
-3. `Main` should call only `facade.completeOrder(...)`, not individual services
-
-**Question to keep in mind:**
-> Can you add a new subsystem (e.g., `NotificationService`) without changing `Main`?
+**Status:** ⏭️ Skipped by user request — not a prerequisite for Builder.
 
 ---
 
-## Pending: Builder
+## In Progress: Builder (Assignment #10 — Final Pattern)
 
-*(Will fill in as we complete each assignment.)*
+### Current pain
+Creating complex orders with many optional fields (gift wrap, insurance, express shipping, gift message, delivery date, promo code, etc.) leads to:
+
+```java
+// Telescoping constructors
+Order order1 = new Order("item1", 100.0);
+Order order2 = new Order("item1", 100.0, true);  // gift wrap?
+Order order3 = new Order("item1", 100.0, true, false, "msg", "2026-10-20", "SAVE10");
+```
+
+**Problems:**
+- Telescoping constructors — hard to know what each parameter means
+- Huge parameter lists — error-prone
+- Can't easily add new optional fields without breaking existing calls
+- Unclear which parameters are required vs optional
+
+### Your task (Part 1 — feel the pain)
+
+**Folder:** `builder:creational/naive/`
+
+Write Java code where:
+
+1. Create an `Order` class with constructors for different combinations of fields
+2. Required fields: `itemId`, `amount`
+3. Optional fields: `giftWrap`, `insurance`, `expressShipping`, `giftMessage`, `deliveryDate`, `promoCode`
+4. Provide multiple constructors (telescoping) to handle different combinations
+5. `Main` should demonstrate creating orders with different combinations
+
+**The pain you should feel:**
+- Constructor with 7 parameters — which boolean is which?
+- Want gift wrap + express shipping but no insurance? You pass `true, false, true` — easy to mix up
+- Adding a new optional field requires adding new constructors
+- No way to skip middle optional fields without passing null/dummy values
+
+---
+
+### What I'll review when you paste
+
+- Did you end up with telescoping constructors?
+- Adding a new optional field — how many constructors do you add?
+- Creating an order with skipped optional fields — how confusing is the parameter order?
+
+---
+
+**Write the naive code. Paste it. I won't give you the solution first.**
+
