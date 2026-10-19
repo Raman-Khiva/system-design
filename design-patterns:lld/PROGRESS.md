@@ -1,304 +1,283 @@
-# Progress Tracker
+# Design Patterns — Quick Revision Guide
 
+**Method:** Build naive → feel the pain → pattern emerges → refactor  
 **Language:** Java  
-**Method:** Build naive → feel pain → pattern emerges → refactor → repeat
+**Purpose:** Interview & revision reference
 
 ---
 
-## Completed: Strategy Pattern (Assignment #1)
+## 1. Strategy (Behavioral) ✅
 
-### Location
-Detailed chronological progress with code: `strategy:behavioral/PROGRESS.md`
+**Scenario:** `Order.checkout()` needs to support multiple payment methods (Credit Card, PayPal, Crypto).
 
-### What you built (naive → refactored)
-- **Naive:** `strategy:behavioral/naive/Order.java` — `switch` on payment type inside `checkout()`
-- **Refactored:** `strategy:behavioral/pattern/` — `PaymentStrategy` interface + 3 concrete strategies; `Order` delegates, no `switch`
-
-### Pain identified
-1. **Open/Closed violation:** Adding a 4th payment method forces editing `Order.java`.
-2. **Single Responsibility violation:** `Order` knows internals of every payment method.
-3. **Fragile:** One `switch` holds all payment logic.
-
-### Pattern born from pain
-**Strategy (Behavioral):** Extract each payment algorithm into its own class behind a common interface. `Order` delegates to a `PaymentStrategy` instead of deciding which payment to run.
-
-### Key result
-- `Order` knows nothing about `credit_card`, `paypal`, or `crypto`
-- Adding Apple Pay requires only a new class; `Order` stays untouched
-- Client (`Main`) chooses and injects the strategy
-
-**Status:** ✅ Complete. Review `strategy:behavioral/PROGRESS.md` for full revision notes.
-
----
-
-## In Progress: Factory Pattern (Assignment #2)
-
-### Current pain
-Even with Strategy, your client code still does:
-```java
-order.setPaymentStrategy(new CreditCardPayment());
-order.setPaymentStrategy(new PayPalPayment());
-```
-Every time you add/rename a payment class, you must hunt down every `new ...Payment()` across the app and update it.
-
-### Your task
-Create a `PaymentFactory` so clients never call `new` on payment classes directly.
-
-**Requirements:**
-1. Keep your Strategy classes (`PaymentStrategy`, `CreditCardPayment`, `PayPalPayment`, `CryptoPayment`).
-2. Create `PaymentFactory` with a static method like:
-   ```java
-   public static PaymentStrategy createPayment(String type)
-   ```
-3. Update your client (`Main`) to use the factory instead of `new`.
-4. Support at least `credit_card`, `paypal`, `crypto`.
-
-**Question to keep in mind while coding:**
-> If you add Apple Pay, do you still have to touch `Main`? Or only `PaymentFactory`?
-
----
-
-## Completed: Factory Method (Assignment #2)
-
-### Location
-Detailed chronological progress with code: `factory:creational/PROGRESS.md`
-
-### What you built
-- **Naive:** `factory:creational/naive/Main.java` — `switch` calling `new CreditCardPayment()` directly
-- **Pattern:** `factory:creational/pattern/` — `PaymentFactory` interface + 3 concrete factories; `Main` calls `factory.createPayment()`, no direct `new` on payment classes
-
-### Pain identified
-1. **Client coupled to concrete classes:** `Main` directly instantiates payment classes.
-2. **Fragile on change:** Adding Apple Pay requires editing every client's `new` calls.
-3. **Constructor changes break clients:** Every `new` call site must be updated.
-
-### Pattern born from pain
-**Factory Method (Creational):** Define an interface for creating an object, but let factories decide which class to instantiate. Clients depend on the factory interface, not concrete classes.
-
-### Key result
-- `new CreditCardPayment()` etc. moved from `Main` into factory classes
-- `Main` depends on `PaymentFactory` abstraction, not concrete payment classes
-- Adding a new payment type requires only a new factory class
-
-**Status:** ✅ Complete. Review `factory:creational/PROGRESS.md` for full revision notes.
-
----
-
-## Completed: Singleton (Assignment #3)
-
-### Location
-Detailed chronological progress with code: `singleton:creational/PROGRESS.md`
-
-### What you built
-- **Naive:** `singleton:creational/naive/PaymentGatewayConfig.java` + `Main.java` — public constructor, two instances with inconsistent `isSandboxMode` state
-- **Pattern:** `singleton:creational/pattern/` — private constructor, private static `instance`, static `getInstance()` with lazy initialization; `Main` proves `config1` and `config2` are the same object
-
-### Pain identified
-1. **Uncontrolled instantiation:** Anyone can call `new PaymentGatewayConfig()` and create independent copies.
-2. **Inconsistent state:** `config1` has `isSandboxMode = true`, `config2` has `false`. Different objects, diverging state.
-3. **No single source of truth:** Changing one instance doesn't affect others; easy to miss updates.
-4. **Memory waste:** Duplicate config objects waste resources.
-
-### Pattern born from pain
-**Singleton (Creational):** Ensure a class has only one instance and provide a global point of access to it.
-
-### Key result
-- `getInstance()` always returns the same object
-- State changes are visible across the whole app
-- `config1 == config2` → `true`
-
-**Status:** ✅ Complete. Review `singleton:creational/PROGRESS.md` for full revision notes.
-
----
-
-## Completed: Observer (Assignment #4)
-
-### Location
-Detailed chronological progress with code: `observer:behavioral/PROGRESS.md`
-
-### What you built
-- **Naive:** `observer:behavioral/naive/Order.java` — directly instantiates `EmailService`, `InventoryService`, `ShippingService` and calls `send()`, `update()`, `schedule()` directly
-- **Pattern:** `observer:behavioral/pattern/` — `Observer` interface + 3 concrete observers; `Order` holds `List<Observer>` with `attach()`/`detach()`/`notifyObservers()`
-
-### Pain identified
-1. **Tight coupling to concrete classes:** `Order` knows service classes by name and method signatures.
-2. **Order creates its own dependencies:** Constructor uses `new`, preventing mock injection.
-3. **Fragile on change:** Adding SMS requires editing `Order.java` (field + init + method call).
-4. **No selective notification:** All services fire unconditionally.
-5. **Inconsistent method names:** `send()`, `update()`, `schedule()` — `Order` must remember each.
-
-### Pattern born from pain
-**Observer (Behavioral):** Define a one-to-many dependency so that when one object changes state, all dependents are notified automatically. Subject knows only the interface, not concrete observers.
-
-### Key result
-- `Order` maintains `List<Observer>` — knows nothing about Email/Inventory/Shipping
-- `attach()` / `detach()` for runtime subscription
-- `notifyObservers()` loops and calls `update()`
-- Adding SMSService requires zero changes to `Order.java`
-
-**Status:** ✅ Complete. Review `observer:behavioral/PROGRESS.md` for full revision notes.
-
----
-
-## Skipped: Decorator (Assignment #5)
-
-**Status:** ⏭️ Skipped by mutual agreement — not a prerequisite for Template Method.
-
----
-
-## Completed: Template Method (Assignment #6)
-
-### Location
-Naive code: `template:behavioral/naive/`
-
-### What you built (naive)
-- **`Order.java`** — interface with only `process()`
-- **`StandardOrder.java`** — implements `process()` with 4 hardcoded steps (validate → tax → notify → inventory)
-- **`ExpressOrder.java`** — implements `process()` with same 4-step sequence, different step implementations
-- **`Main.java`** — selects order type, calls `process()`
-
-### Pain identified (Tutor Review)
-
-| # | Pain | Explanation |
-|---|------|-------------|
-| 1 | **Duplicated algorithm skeleton** | Both `StandardOrder` and `ExpressOrder` contain the identical 4-step sequence. Adding a 5th step requires editing every order class. |
-| 2 | **Hard to reorder steps** | If business changes step order (e.g., notify before tax), every order class must be edited. |
-| 3 | **No way to override just one step** | Each class implements the entire `process()` from scratch. If only tax differs, you still rewrite validation, notification, inventory. |
-| 4. | **Interface is too thin** | `Order` exposes only `process()`, no contract declaring the individual steps that all orders must follow. |
-
-**The core problem:** Multiple classes share the same algorithm structure but individual steps vary. The skeleton is copied, not centralized.
-
-### Pattern born from pain
-**Template Method (Behavioral):** Define the skeleton of an algorithm in a base class method, deferring some steps to subclasses. Subclasses redefine certain steps without changing the algorithm's structure.
-
-### Your Next Task (Part 2 — Pending)
-
-**Folder:** `template:behavioral/pattern/`
-
-### Create:
-
-1. **`Order.java`** — abstract class with:
-   - `final void process()` containing the step skeleton
-   - Abstract methods for steps that vary
-   - Optional hook methods with default implementations
-
-2. **`StandardOrder.java`** — extends `Order`, overrides only steps that differ
-3. **`ExpressOrder.java`** — extends `Order`, overrides only steps that differ
-4. **`Main.java`** — same driver, order types share the skeleton
-
-### Key question:
-> If you add a 5th step (e.g., `sendInvoice()`), do you edit one class (the abstract base) or every order subclass?
-
----
-
-## Completed: Command (Assignment #7)
-
-### Location
-Detailed chronological progress with code: `command:behavioral/PROGRESS.md`
-
-### What you built
-- **Naive:** `command:behavioral/naive/OrderProcessor.java` — `placeOrder()` and `cancelOrder()` with business logic inline; `Main.java` calls methods directly
-- **Pattern:** `command:behavioral/pattern/` — `Command` interface (`execute()`/`undo()`), `Order` receiver, `PlaceOrderCommand`, `CancelOrderCommand`, `CommandInvoker` (history stack), `Main` demonstrates execute + undo
-
-### Pain identified
-1. **Business logic tangled with invocation:** Caller knows internal steps of `placeOrder()`.
-2. **No undo capability:** Once executed, no true reversal.
-3. **No retry or queue support:** Can't queue commands or retry failed steps.
-4. **Fragile on change:** New action requires editing both `OrderProcessor` and `Main`.
-5. **No logging or audit trail:** Actions execute immediately, not captured as objects.
-
-### Pattern born from pain
-**Command (Behavioral):** Encapsulate a request as an object, letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
-
-### Key result
-- `CommandInvoker` holds a history stack and calls `execute()`/`undo()` without knowing command internals
-- `Order` object created once outside loop — undo operates on the same order
-- Undo demonstrated via menu option (`u`)
-
-**Status:** ✅ Complete. Review `command:behavioral/PROGRESS.md` for full revision notes.
-
----
-
-## Completed: State (Assignment #8)
-
-### Location
-Detailed chronological progress with code: `state:behavioral/PROGRESS.md`
-
-### What you built
-- **Naive:** `state:behavioral/naive/Order.java` — `if/else` on `Status` enum inside every method
-- **Pattern:** `state:behavioral/pattern/` — `State` interface + 5 concrete states + `Order` context that delegates
-
-### Pain identified
-1. **`if/else` on status inside every method** — logic duplicated across all methods
-2. **Adding a new status requires editing every method**
-3. **Adding a new action requires writing status checks for all statuses**
-4. **`Order` knows about every status and transition** — does too much
-5. **Invalid transitions just print messages** — no clean error handling
-
-### Pattern born from pain
-**State (Behavioral):** Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.
-
-### Key result
-- No `if/else` on status anywhere in `Order` or state classes
-- Each state encapsulates its own behavior and transitions
-- Adding `REFUNDED` = one new class, no existing class changes
-- Terminal states (`DeliveredState`, `CanceledState`) correctly reject all actions
-
-**Status:** ✅ Complete. Review `state:behavioral/PROGRESS.md` for full revision notes.
-
----
-
-## Skipped: Facade (Assignment #9)
-
-**Status:** ⏭️ Skipped by user request — not a prerequisite for Builder.
-
----
-
-## In Progress: Builder (Assignment #10 — Final Pattern)
-
-### Current pain
-Creating complex orders with many optional fields (gift wrap, insurance, express shipping, gift message, delivery date, promo code, etc.) leads to:
+**Naive Approach:** `switch` on payment type inside `Order.checkout()`.
 
 ```java
-// Telescoping constructors
-Order order1 = new Order("item1", 100.0);
-Order order2 = new Order("item1", 100.0, true);  // gift wrap?
-Order order3 = new Order("item1", 100.0, true, false, "msg", "2026-10-20", "SAVE10");
+public class Order {
+    static void checkout(String paymentType, double amount) {
+        switch (paymentType) {
+            case "credit_card":
+                System.out.println("Processing $" + amount + " via Credit Card");
+                break;
+            case "paypal":
+                System.out.println("Processing $" + amount + " via Paypal");
+                break;
+            case "crypto":
+                System.out.println("Processing $" + amount + " via crypto");
+                break;
+            default:
+                System.out.println("Payment failed!");
+        }
+    }
+}
 ```
 
-**Problems:**
-- Telescoping constructors — hard to know what each parameter means
-- Huge parameter lists — error-prone
-- Can't easily add new optional fields without breaking existing calls
-- Unclear which parameters are required vs optional
+**Pain:** Adding a new payment method forces editing `Order`. Violates Open/Closed and Single Responsibility.
 
-### Your task (Part 1 — feel the pain)
+**Cure:** Extract each algorithm into its own class behind a common interface.
 
-**Folder:** `builder:creational/naive/`
+**Formal Definition:** Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
 
-Write Java code where:
+**Intuitive Definition:** "Swap algorithms like plugins."
 
-1. Create an `Order` class with constructors for different combinations of fields
-2. Required fields: `itemId`, `amount`
-3. Optional fields: `giftWrap`, `insurance`, `expressShipping`, `giftMessage`, `deliveryDate`, `promoCode`
-4. Provide multiple constructors (telescoping) to handle different combinations
-5. `Main` should demonstrate creating orders with different combinations
-
-**The pain you should feel:**
-- Constructor with 7 parameters — which boolean is which?
-- Want gift wrap + express shipping but no insurance? You pass `true, false, true` — easy to mix up
-- Adding a new optional field requires adding new constructors
-- No way to skip middle optional fields without passing null/dummy values
+**Refactored Structure:**
+- `PaymentStrategy` interface → `pay(double amount)`
+- `CreditCardPayment`, `PayPalPayment`, `CryptoPayment` implement it
+- `Order` holds a `PaymentStrategy` reference, calls `pay()` — no `switch`
 
 ---
 
-### What I'll review when you paste
+## 2. Factory (Behavioral) ✅
 
-- Did you end up with telescoping constructors?
-- Adding a new optional field — how many constructors do you add?
-- Creating an order with skipped optional fields — how confusing is the parameter order?
+**Scenario:** Even with Strategy, client code still does `new CreditCardPayment()`, `new PayPalPayment()` directly.
+
+**Naive Approach:** Scattered `new` calls across the codebase.
+
+```java
+PaymentStrategy strategy;
+if (type.equals("credit_card")) {
+    strategy = new CreditCardPayment();
+} else if (type.equals("paypal")) {
+    strategy = new PayPalPayment();
+} else {
+    strategy = new CryptoPayment();
+}
+```
+
+**Pain:** If class names change or construction gets complex, every client breaks. `new` is scattered everywhere.
+
+**Cure:** Centralize object creation in one class/method so clients don't instantiate concrete classes directly.
+
+**Formal Definition:** Define an interface for creating an object, but let subclasses/factories decide which class to instantiate.
+
+**Intuitive Definition:** "Don't call `new` everywhere; let a factory decide."
+
+**Refactored Structure:**
+- `PaymentFactory` with `getStrategy(type)` method
+- Returns the right `PaymentStrategy` based on a type string
+- Clients call `PaymentFactory.getStrategy("paypal")` — no direct `new`
 
 ---
 
-**Write the naive code. Paste it. I won't give you the solution first.**
+## 3. Singleton (Behavioral) ✅
 
+**Scenario:** Shared payment gateway config / order processor — need exactly one instance.
+
+**Naive Approach:** Multiple instances cause inconsistent state or wasted resources.
+
+```java
+PaymentConfig config1 = new PaymentConfig();
+PaymentConfig config2 = new PaymentConfig();  // different state!
+```
+
+**Pain:** Multiple instances of config/connection cause inconsistent state. No global access point.
+
+**Cure:** Ensure only one instance exists and provide global access to it.
+
+**Formal Definition:** Ensure a class has only one instance and provide a global point of access to it.
+
+**Intuitive Definition:** "One instance to rule them all."
+
+**Refactored Structure:**
+- `private` constructor
+- `private static` instance field
+- `public static getInstance()` method with lazy initialization
+
+---
+
+## 4. Observer (Behavioral) ✅
+
+**Scenario:** After `Order.checkout()`, notify email, inventory, shipping services.
+
+**Naive Approach:** `Order` directly calls concrete services with inconsistent method names.
+
+```java
+public class Order {
+    EmailService emailService;
+    InventoryService inventoryService;
+    ShippingService shippingService;
+
+    public Order() {
+        emailService = new EmailService();
+        inventoryService = new InventoryService();
+        shippingService = new ShippingService();
+    }
+
+    public void checkout() {
+        emailService.send();
+        inventoryService.update();
+        shippingService.schedule();
+    }
+}
+```
+
+**Pain:** Adding a new service = edit `Order.java`. Tight coupling to concrete classes. No runtime subscription.
+
+**Cure:** Define a one-to-many dependency so when one object changes state, all dependents are notified automatically.
+
+**Formal Definition:** Define a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.
+
+**Intuitive Definition:** "Subscribe and get notified."
+
+**Refactored Structure:**
+- `Observer` interface → `update(Order order)`
+- `Order` maintains `List<Observer>`, not concrete services
+- `attach(Observer)` / `detach(Observer)` for runtime subscription
+- `notifyObservers()` loops and calls `o.update(this)` uniformly
+
+---
+
+## 5. Template Method (Behavioral) ✅
+
+**Scenario:** Checkout flow: validate → tax → payment → confirmation — same skeleton, different steps.
+
+**Naive Approach:** Copy-paste the skeleton across order types, override inconsistently.
+
+**Pain:** Duplicated checkout skeleton across different order types. Steps hard to reuse or skip.
+
+**Cure:** Define the skeleton of an algorithm in a base class, let subclasses override specific steps.
+
+**Formal Definition:** Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps without changing the algorithm's structure.
+
+**Intuitive Definition:** "Fixed skeleton, customizable steps."
+
+---
+
+## 6. Command (Behavioral) ✅
+
+**Scenario:** Place, cancel, retry orders with undo support.
+
+**Naive Approach:** Business logic tangled with invocation/request handling.
+
+**Pain:** No way to undo or retry cleanly. Logic mixed with how requests are handled.
+
+**Cure:** Turn a request into an object so you can parameterize, queue, log, or undo operations.
+
+**Formal Definition:** Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+
+**Intuitive Definition:** "Turn actions into objects."
+
+---
+
+## 7. State (Behavioral) ✅
+
+**Scenario:** Order lifecycle: `Pending → Paid → Shipped → Delivered → Cancelled`.
+
+**Naive Approach:** Huge `if/else` on `order.status` inside every method.
+
+```java
+public void ship() {
+    if (status.equals("Pending")) { ... }
+    else if (status.equals("Paid")) { ... }
+    else if (status.equals("Shipped")) { ... }
+}
+```
+
+**Pain:** Adding a new status breaks every method. Behavior scattered across conditionals.
+
+**Cure:** Let an object change behavior when its internal state changes.
+
+**Formal Definition:** Allow an object to alter its behavior when its internal state changes. The object will appear to change its class.
+
+**Intuitive Definition:** "Behavior changes with mood (state)."
+
+---
+
+## 8. Facade (Structural) ⏭️ Skipped
+
+**Scenario:** Simplify a complex checkout subsystem (payment + inventory + shipping + tax).
+
+**Pain:** Client code talking to 10 different services directly. Changes ripple everywhere.
+
+**Formal Definition:** Provide a unified interface to a set of interfaces in a subsystem. Facade defines a higher-level interface that makes the subsystem easier to use.
+
+**Intuitive Definition:** "One simple door to a messy room."
+
+---
+
+## 9. Builder (Creational) ✅
+
+**Scenario:** Create complex orders with many optional fields (id, amt, promocode, giftWrap, giftMessage).
+
+**Naive Approach:** Telescoping constructors for every combination.
+
+```java
+public Order(String _id, int _amt) { ... }
+public Order(String _id, int _amt, boolean _giftWrap) { ... }
+public Order(String _id, int _amt, boolean _giftWrap, String _giftMessage) { ... }
+public Order(String _id, int _amt, int _promoCode) { ... }
+```
+
+**Pain:** Constructor explosion (2^n), unreadable call sites, can't skip optional fields, mutable objects.
+
+**Cure:** Separate construction from representation. Build step by step, produce immutable object.
+
+**Formal Definition:** Separate the construction of a complex object from its representation, so the same construction process can create different representations.
+
+**Intuitive Definition:** "Build step by step, not one giant constructor."
+
+**Refactored Structure:**
+- `Order` — all fields `final`, single constructor taking `Builder`
+- `OrderBuilder` — fluent methods `.id()`, `.amt()`, `.giftWrap()`, `.build()`
+- `build()` creates immutable `Order` in one shot
+
+---
+
+## 10. Decorator (Structural) ⬜ Pending
+
+**Scenario:** Add gift wrap, insurance, express shipping to an order dynamically.
+
+**Naive Approach:** Subclass explosion — `OrderWithGiftWrap`, `OrderWithInsurance`, `OrderWithBoth`, etc.
+
+**Pain:** 2^n subclasses for n options. Adding one option doubles the class count.
+
+**Formal Definition:** Attach additional responsibilities to an object dynamically. Decorators provide a flexible alternative to subclassing for extending functionality.
+
+**Intuitive Definition:** "Wrap it, don't subclass it."
+
+---
+
+## Quick Revision Table
+
+| # | Pattern | Remember it as... |
+|---|---------|-------------------|
+| 1 | Strategy | "Swap algorithms like plugins." |
+| 2 | Factory | "Don't call `new` everywhere; let a factory decide." |
+| 3 | Singleton | "One instance to rule them all." |
+| 4 | Observer | "Subscribe and get notified." |
+| 5 | Template Method | "Fixed skeleton, customizable steps." |
+| 6 | Command | "Turn actions into objects." |
+| 7 | State | "Behavior changes with mood (state)." |
+| 8 | Facade | "One simple door to a messy room." |
+| 9 | Builder | "Build step by step, not one giant constructor." |
+| 10 | Decorator | "Wrap it, don't subclass it." |
+
+---
+
+## Pattern Categories
+
+| Category | Patterns |
+|----------|----------|
+| **Creational** | Singleton, Factory, Builder |
+| **Behavioral** | Strategy, Observer, Template Method, Command, State, Decorator |
+| **Structural** | Facade |
