@@ -16,12 +16,9 @@ This folder holds my work on 10 design patterns in Java, the reasoning behind ea
 
 <br>
 
-> [!TIP]
-> ### 💡 Want to start right now?
->
-> Attach two files to any LLM and it becomes your design patterns tutor. No prompt needed.
->
-> **[👉 Go to: How to use this](#-how-to-use-this)**
+| 💡 **Want to start right now?** |
+| :-: |
+| Attach two files to any LLM and it becomes your design patterns tutor. No prompt needed.<br><br>**[👉 Go to: How to use this](#-how-to-use-this)** |
 
 <br>
 
