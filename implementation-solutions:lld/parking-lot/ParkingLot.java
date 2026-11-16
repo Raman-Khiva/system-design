@@ -1,22 +1,12 @@
 
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.Vector;
 
 public class ParkingLot {
     Vector<ParkingSpot> spots;
 
-    // boolean park(Vehicle vehicle){
-    // Optional<ParkingSpot> result = spots.stream()
-    // .filter(spot-> spot.isBooked()==false)
-    // .findFirst();
-    // if(result.isPresent()){
-    // ParkingSpot spot = result.get();
-    // spot.booked = true;
-    // return true;
-    // }
-    // return false;
-    // }
-    //
     ParkingLot() {
         spots = new Vector<>();
     }
@@ -37,9 +27,10 @@ public class ParkingLot {
         return (int) count;
     }
 
-    ParkingSpot findFreeSpotByType(VehicleTypes t) {
+    ParkingSpot findFreeSpotBySize(Sizes sz) {
+        spots.sort(Comparator.comparing(spot -> spot.capicity));
         Optional<ParkingSpot> result = spots.stream()
-                .filter(spot -> spot.spotType == t && !spot.isBooked())
+                .filter(spot -> (spot.capicity.compareTo(sz) >= 0) && !spot.isBooked())
                 .findFirst();
         if (result.isPresent()) {
             return result.get();
@@ -48,23 +39,16 @@ public class ParkingLot {
         return null;
     }
 
-    String park(Vehicle v) {
+    ParkingSpot getSpot(UUID id) {
+        Optional<ParkingSpot> result = spots.stream()
+                .filter(spot -> spot.id.equals(id))
+                .findFirst();
 
-        if (v.parked) {
-            return "Vechile is already Parked";
+        if (!result.isPresent()) {
+            return null;
         }
 
-        ParkingSpot foundSpot = this.findFreeSpotByType(v.type);
-
-        if (foundSpot == null) {
-            return "Can't park! No free spot found!";
-        }
-
-        Ticket ticket = new Ticket(foundSpot.id, v.id, foundSpot.level, v.type);
-        foundSpot.book(ticket);
-        v.park(ticket);
-
-        return "Parked succesfully";
+        return result.get();
     }
 
 }
